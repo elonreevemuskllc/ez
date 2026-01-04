@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 Casino Router - Dashboard Live</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .live-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pulse {
+            width: 12px;
+            height: 12px;
+            background: #ff4444;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .click-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .click-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .click-time {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .click-country {
+            background: #764ba2;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .click-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .detail-box {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .detail-label {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .casino-selected {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .reason-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .available-casinos {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .casino-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            border: 1px solid #90caf9;
+        }
+
+        .casino-badge.blocked {
+            background: #ffebee;
+            color: #c62828;
+            border-color: #ef9a9a;
+            text-decoration: line-through;
+        }
+
+        .auto-refresh {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .refresh-toggle {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .refresh-toggle:hover {
+            background: #f0f0f0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .epc-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .epc-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 Casino Router - Dashboard Live</h1>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalClicks">-</div>
+                <div class="stat-label">Total Clicks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalFTDs">-</div>
+                <div class="stat-label">Total FTDs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalRevenue">-</div>
+                <div class="stat-label">Revenus Totaux</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgEPC">-</div>
+                <div class="stat-label">EPC Moyen</div>
+            </div>
+        </div>
+
+        <div class="live-section">
+            <div class="section-title">
+                <div class="pulse"></div>
+                Clicks en Temps Réel
+            </div>
+            <div id="liveClicks" class="loading">Chargement des données...</div>
+        </div>
+
+        <div class="auto-refresh">
+            Auto-refresh activé
+            <button class="refresh-toggle" onclick="toggleAutoRefresh()">Pause</button>
+        </div>
+    </div>
+
+    <script>
+        let autoRefresh = true;
+        let refreshInterval;
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/admin/stats', {
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin:admin123')
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch stats');
+                
+                const stats = await response.json();
+                
+                let totalClicks = 0;
+                let totalFTDs = 0;
+                let totalRevenue = 0;
+                
+                stats.forEach(stat => {
+                    totalClicks += stat.total_clicks || 0;
+                    totalFTDs += stat.total_ftds || 0;
+                    totalRevenue += stat.total_payout || 0;
+                });
+                
+                const avgEPC = totalClicks > 0 ? (totalRevenue / totalClicks).toFixed(2) : '0.00';
+                
+                document.getElementById('totalClicks').textContent = totalClicks;
+                document.getElementById('totalFTDs').textContent = totalFTDs;
+                document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(0) + '€';
+                document.getElementById('avgEPC').textContent = avgEPC + '€';
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadLiveClicks() {
+            try {
+                const response = await fetch('/admin/live-clicks', {
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin:admin123')
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch live clicks');
+                
+                const clicks = await response.json();
+                
+                const container = document.getElementById('liveClicks');
+                
+                if (clicks.length === 0) {
+                    container.innerHTML = '<div class="loading">Aucun click récent. Lance du trafic pour voir la magie opérer ! 🚀</div>';
+                    return;
+                }
+                
+                container.innerHTML = clicks.map(click => {
+                    const time = new Date(click.timestamp).toLocaleTimeString('fr-FR');
+                    const country = click.country || '🌍 Inconnu';
+                    const reason = getReasonText(click);
+                    
+                    return `
+                        <div class="click-item">
+                            <div class="click-header">
+                                <span class="click-time">${time} - ${click.sub1}</span>
+                                <span class="click-country">${country}</span>
+                            </div>
+                            
+                            <div class="click-details">
+                                <div class="detail-box">
+                                    <div class="detail-label">Casinos Disponibles</div>
+                                    <div class="available-casinos">
+                                        ${getAvailableCasinos(click)}
+                                    </div>
+                                </div>
+                                <div class="detail-box">
+                                    <div class="detail-label">Casino Sélectionné</div>
+                                    <div class="casino-selected">
+                                        ${click.selected_offer_name} (${click.selected_offer_id})
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="reason-box">
+                                <strong>💡 Pourquoi ce casino ?</strong><br>
+                                ${reason}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading live clicks:', error);
+                document.getElementById('liveClicks').innerHTML = 
+                    '<div class="loading">⚠️ Erreur de chargement. Vérifie que Docker tourne.</div>';
+            }
+        }
+
+        function getAvailableCasinos(click) {
+            // Affiche tous les casinos avec indication si bloqué
+            const allCasinos = [
+                { id: 5, name: 'MyStake', cpa: 55 },
+                { id: 6, name: 'iCE', cpa: 50 },
+                { id: 7, name: 'SpinGranny', cpa: 75 },
+                { id: 8, name: '7ladies', cpa: 70 }
+            ];
+            
+            return allCasinos.map(casino => {
+                const isBlocked = !click.available_offer_ids || !click.available_offer_ids.includes(casino.id);
+                const className = isBlocked ? 'casino-badge blocked' : 'casino-badge';
+                const icon = isBlocked ? '❌' : '✅';
+                return `<span class="${className}">${icon} ${casino.name} (${casino.cpa}€)</span>`;
+            }).join('');
+        }
+
+        function getReasonText(click) {
+            let reasons = [];
+            
+            // Filtrage géographique
+            if (click.country) {
+                const geoCountries = ['BE', 'CH', 'IT', 'DE', 'CA'];
+                if (geoCountries.includes(click.country)) {
+                    reasons.push(`🌍 <strong>Géo-ciblage:</strong> Pays ${click.country} → 7ladies EXCLUSIF (70€ CPA)`);
+                } else {
+                    reasons.push(`🌍 <strong>Géo-ciblage:</strong> Pays ${click.country} → 7ladies bloqué, autres casinos disponibles`);
+                }
+            }
+            
+            // Restrictions horaires
+            const hour = new Date(click.timestamp).getHours();
+            const day = new Date(click.timestamp).getDay();
+            const isWeekend = (day === 0 || day === 6);
+            const isEvening = (hour >= 19 || hour < 6);
+            
+            if (isWeekend || isEvening) {
+                reasons.push(`⏰ <strong>Horaire:</strong> SpinGranny disponible (75€ CPA) - ${isWeekend ? 'Weekend' : 'Soirée'}`);
+            } else {
+                reasons.push(`⏰ <strong>Horaire:</strong> SpinGranny bloqué (en semaine 06h-19h)`);
+            }
+            
+            // Sélection finale
+            const selectedName = click.selected_offer_name;
+            reasons.push(`🎯 <strong>Sélection:</strong> ${selectedName} choisi par l'algorithme (80% meilleur EPC / 20% exploration)`);
+            
+            return reasons.join('<br>');
+        }
+
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            const button = document.querySelector('.refresh-toggle');
+            
+            if (autoRefresh) {
+                button.textContent = 'Pause';
+                startAutoRefresh();
+            } else {
+                button.textContent = 'Reprendre';
+                clearInterval(refreshInterval);
+            }
+        }
+
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                if (autoRefresh) {
+                    loadStats();
+                    loadLiveClicks();
+                }
+            }, 3000); // Refresh toutes les 3 secondes
+        }
+
+        // Initial load
+        loadStats();
+        loadLiveClicks();
+        startAutoRefresh();
+    </script>
+</body>
+</html>
+

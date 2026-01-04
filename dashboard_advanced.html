@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Router - Dashboard Avancé</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .good {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .bad {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .refresh-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-section input, .filter-section select {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .badge-tiktok { background: #000; color: white; }
+        .badge-youtube { background: #FF0000; color: white; }
+        .badge-instagram { background: #E4405F; color: white; }
+        .badge-facebook { background: #1877F2; color: white; }
+        .badge-google { background: #4285F4; color: white; }
+        .badge-other { background: #6c757d; color: white; }
+        
+        .leak-alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .leak-alert h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 Casino Router - Dashboard Avancé</h1>
+        
+        <button class="refresh-btn" onclick="loadData()">🔄 Rafraîchir les données</button>
+        
+        <!-- Stats globales -->
+        <div class="stats-grid" id="globalStats">
+            <div class="stat-card">
+                <h3>📊 Total Clicks</h3>
+                <div class="value" id="totalClicks">-</div>
+                <div class="label">Tous affiliés</div>
+            </div>
+            <div class="stat-card">
+                <h3>💰 Total FTDs</h3>
+                <div class="value" id="totalFtds">-</div>
+                <div class="label">Conversions</div>
+            </div>
+            <div class="stat-card">
+                <h3>💵 Total Payout</h3>
+                <div class="value" id="totalPayout">-</div>
+                <div class="label">Revenus</div>
+            </div>
+            <div class="stat-card">
+                <h3>📈 Taux de Conversion</h3>
+                <div class="value" id="conversionRate">-</div>
+                <div class="label">Global</div>
+            </div>
+        </div>
+        
+        <!-- Détection de leaks -->
+        <div class="section" id="leakSection">
+            <h2>🚨 Détection de Leaks</h2>
+            <div id="leakAlerts"></div>
+        </div>
+        
+        <!-- Trafic par source -->
+        <div class="section">
+            <h2>🌐 Trafic par Source</h2>
+            <table id="sourceTable">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Clicks</th>
+                        <th>FTDs</th>
+                        <th>Payout</th>
+                        <th>Taux Conv.</th>
+                        <th>EV/Click</th>
+                    </tr>
+                </thead>
+                <tbody id="sourceTableBody">
+                    <tr><td colspan="6" style="text-align: center;">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Trafic par affilié (sub1) -->
+        <div class="section">
+            <h2>👥 Trafic par Affilié</h2>
+            <div class="filter-section">
+                <input type="text" id="searchAffiliate" placeholder="Rechercher un affilié..." onkeyup="filterTable()">
+                <select id="filterSource" onchange="filterTable()">
+                    <option value="">Toutes les sources</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="google">Google</option>
+                </select>
+            </div>
+            <table id="affiliateTable">
+                <thead>
+                    <tr>
+                        <th>Affilié (sub1)</th>
+                        <th>Source</th>
+                        <th>Casino Principal</th>
+                        <th>Clicks</th>
+                        <th>FTDs</th>
+                        <th>Payout</th>
+                        <th>Conv. %</th>
+                    </tr>
+                </thead>
+                <tbody id="affiliateTableBody">
+                    <tr><td colspan="7" style="text-align: center;">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Performance par casino -->
+        <div class="section">
+            <h2>🎰 Performance par Casino</h2>
+            <table id="casinoTable">
+                <thead>
+                    <tr>
+                        <th>Casino</th>
+                        <th>Clicks</th>
+                        <th>FTDs</th>
+                        <th>Payout</th>
+                        <th>Taux Conv.</th>
+                        <th>Part du Trafic</th>
+                    </tr>
+                </thead>
+                <tbody id="casinoTableBody">
+                    <tr><td colspan="6" style="text-align: center;">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration - CHANGEZ L'URL ICI
+        const API_URL = 'https://a7895fee0d49.ngrok-free.app';
+        const USERNAME = 'admin';
+        const PASSWORD = 'admin123';
+        
+        const auth = btoa(`${USERNAME}:${PASSWORD}`);
+        const headers = {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json'
+        };
+        
+        async function loadData() {
+            try {
+                // Charger les stats globales
+                const statsResponse = await fetch(`${API_URL}/admin/stats`, { headers });
+                const stats = await statsResponse.json();
+                
+                updateGlobalStats(stats);
+                
+                // Charger les stats par sub1
+                const sub1Response = await fetch(`${API_URL}/admin/stats/sub1`, { headers });
+                const sub1Stats = await sub1Response.json();
+                
+                updateAffiliateTable(sub1Stats);
+                analyzeTrafficSources(sub1Stats);
+                detectLeaks(sub1Stats);
+                
+                // Charger les offres
+                const offersResponse = await fetch(`${API_URL}/admin/offers`, { headers });
+                const offers = await offersResponse.json();
+                
+                updateCasinoTable(stats, offers);
+                
+            } catch (error) {
+                console.error('Erreur de chargement:', error);
+                alert('Erreur de connexion au serveur. Vérifiez que le router est lancé.');
+            }
+        }
+        
+        function updateGlobalStats(stats) {
+            const totalClicks = stats.reduce((sum, s) => sum + s.total_clicks, 0);
+            const totalFtds = stats.reduce((sum, s) => sum + s.total_ftds, 0);
+            const totalPayout = stats.reduce((sum, s) => sum + s.total_payout, 0);
+            const convRate = totalClicks > 0 ? ((totalFtds / totalClicks) * 100).toFixed(2) : 0;
+            
+            document.getElementById('totalClicks').textContent = totalClicks.toLocaleString();
+            document.getElementById('totalFtds').textContent = totalFtds.toLocaleString();
+            document.getElementById('totalPayout').textContent = totalPayout.toFixed(2) + '€';
+            document.getElementById('conversionRate').textContent = convRate + '%';
+        }
+        
+        function updateAffiliateTable(sub1Stats) {
+            const tbody = document.getElementById('affiliateTableBody');
+            tbody.innerHTML = '';
+            
+            if (sub1Stats.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Aucune donnée disponible</td></tr>';
+                return;
+            }
+            
+            // Grouper par sub1
+            const grouped = {};
+            sub1Stats.forEach(stat => {
+                if (!grouped[stat.sub1]) {
+                    grouped[stat.sub1] = {
+                        sub1: stat.sub1,
+                        clicks: 0,
+                        ftds: 0,
+                        payout: 0,
+                        offers: []
+                    };
+                }
+                grouped[stat.sub1].clicks += stat.total_clicks;
+                grouped[stat.sub1].ftds += stat.total_ftds;
+                grouped[stat.sub1].payout += stat.total_payout;
+                grouped[stat.sub1].offers.push(stat);
+            });
+            
+            Object.values(grouped).forEach(aff => {
+                const convRate = aff.clicks > 0 ? ((aff.ftds / aff.clicks) * 100).toFixed(2) : 0;
+                const topOffer = aff.offers.sort((a, b) => b.total_clicks - a.total_clicks)[0];
+                
+                // Extraire la source du sub1 ou afficher "non spécifié"
+                const source = extractSource(aff.sub1);
+                
+                const row = `
+                    <tr data-sub1="${aff.sub1}" data-source="${source}">
+                        <td><strong>${aff.sub1}</strong></td>
+                        <td>${getSourceBadge(source)}</td>
+                        <td>${topOffer.offer_name}</td>
+                        <td>${aff.clicks}</td>
+                        <td class="${aff.ftds > 0 ? 'good' : ''}">${aff.ftds}</td>
+                        <td>${aff.payout.toFixed(2)}€</td>
+                        <td class="${convRate > 3 ? 'good' : convRate > 1 ? 'warning' : 'bad'}">${convRate}%</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+        
+        function analyzeTrafficSources(sub1Stats) {
+            const sources = {};
+            
+            sub1Stats.forEach(stat => {
+                const source = extractSource(stat.sub1);
+                if (!sources[source]) {
+                    sources[source] = { clicks: 0, ftds: 0, payout: 0 };
+                }
+                sources[source].clicks += stat.total_clicks;
+                sources[source].ftds += stat.total_ftds;
+                sources[source].payout += stat.total_payout;
+            });
+            
+            const tbody = document.getElementById('sourceTableBody');
+            tbody.innerHTML = '';
+            
+            Object.entries(sources).forEach(([source, data]) => {
+                const convRate = data.clicks > 0 ? ((data.ftds / data.clicks) * 100).toFixed(2) : 0;
+                const evPerClick = data.clicks > 0 ? (data.payout / data.clicks).toFixed(2) : 0;
+                
+                const row = `
+                    <tr>
+                        <td>${getSourceBadge(source)}</td>
+                        <td>${data.clicks}</td>
+                        <td>${data.ftds}</td>
+                        <td>${data.payout.toFixed(2)}€</td>
+                        <td class="${convRate > 3 ? 'good' : convRate > 1 ? 'warning' : 'bad'}">${convRate}%</td>
+                        <td>${evPerClick}€</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+        
+        function detectLeaks(sub1Stats) {
+            const leakAlerts = document.getElementById('leakAlerts');
+            leakAlerts.innerHTML = '';
+            
+            const grouped = {};
+            sub1Stats.forEach(stat => {
+                if (!grouped[stat.sub1]) {
+                    grouped[stat.sub1] = { clicks: 0, ftds: 0 };
+                }
+                grouped[stat.sub1].clicks += stat.total_clicks;
+                grouped[stat.sub1].ftds += stat.total_ftds;
+            });
+            
+            let leaksDetected = false;
+            
+            Object.entries(grouped).forEach(([sub1, data]) => {
+                if (data.clicks > 50 && data.ftds === 0) {
+                    leaksDetected = true;
+                    leakAlerts.innerHTML += `
+                        <div class="leak-alert">
+                            <h4>⚠️ Leak potentiel : ${sub1}</h4>
+                            <p>${data.clicks} clicks mais AUCUNE conversion !</p>
+                            <p><strong>Action :</strong> Vérifiez la qualité du trafic de cet affilié.</p>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (!leaksDetected) {
+                leakAlerts.innerHTML = '<p style="color: #28a745; font-weight: bold;">✅ Aucun leak détecté ! Tout semble normal.</p>';
+            }
+        }
+        
+        function updateCasinoTable(stats, offers) {
+            const tbody = document.getElementById('casinoTableBody');
+            tbody.innerHTML = '';
+            
+            const casinoStats = {};
+            
+            stats.forEach(stat => {
+                if (!casinoStats[stat.offer_id]) {
+                    casinoStats[stat.offer_id] = {
+                        name: stat.offer_name,
+                        clicks: 0,
+                        ftds: 0,
+                        payout: 0
+                    };
+                }
+                casinoStats[stat.offer_id].clicks += stat.total_clicks;
+                casinoStats[stat.offer_id].ftds += stat.total_ftds;
+                casinoStats[stat.offer_id].payout += stat.total_payout;
+            });
+            
+            const totalClicks = Object.values(casinoStats).reduce((sum, c) => sum + c.clicks, 0);
+            
+            Object.values(casinoStats).forEach(casino => {
+                const convRate = casino.clicks > 0 ? ((casino.ftds / casino.clicks) * 100).toFixed(2) : 0;
+                const trafficShare = totalClicks > 0 ? ((casino.clicks / totalClicks) * 100).toFixed(1) : 0;
+                
+                const row = `
+                    <tr>
+                        <td><strong>${casino.name}</strong></td>
+                        <td>${casino.clicks}</td>
+                        <td>${casino.ftds}</td>
+                        <td>${casino.payout.toFixed(2)}€</td>
+                        <td class="${convRate > 3 ? 'good' : convRate > 1 ? 'warning' : 'bad'}">${convRate}%</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${trafficShare}%"></div>
+                            </div>
+                            ${trafficShare}%
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+        
+        function extractSource(sub1) {
+            const lower = sub1.toLowerCase();
+            if (lower.includes('tiktok')) return 'tiktok';
+            if (lower.includes('youtube') || lower.includes('yt')) return 'youtube';
+            if (lower.includes('instagram') || lower.includes('insta') || lower.includes('ig')) return 'instagram';
+            if (lower.includes('facebook') || lower.includes('fb')) return 'facebook';
+            if (lower.includes('google') || lower.includes('ads')) return 'google';
+            return 'other';
+        }
+        
+        function getSourceBadge(source) {
+            const badges = {
+                'tiktok': '<span class="badge badge-tiktok">TikTok</span>',
+                'youtube': '<span class="badge badge-youtube">YouTube</span>',
+                'instagram': '<span class="badge badge-instagram">Instagram</span>',
+                'facebook': '<span class="badge badge-facebook">Facebook</span>',
+                'google': '<span class="badge badge-google">Google</span>',
+                'other': '<span class="badge badge-other">Autre</span>'
+            };
+            return badges[source] || badges['other'];
+        }
+        
+        function filterTable() {
+            const searchValue = document.getElementById('searchAffiliate').value.toLowerCase();
+            const sourceFilter = document.getElementById('filterSource').value.toLowerCase();
+            const rows = document.querySelectorAll('#affiliateTable tbody tr');
+            
+            rows.forEach(row => {
+                const sub1 = row.dataset.sub1 || '';
+                const source = row.dataset.source || '';
+                
+                const matchSearch = sub1.toLowerCase().includes(searchValue);
+                const matchSource = !sourceFilter || source === sourceFilter;
+                
+                row.style.display = (matchSearch && matchSource) ? '' : 'none';
+            });
+        }
+        
+        // Charger les données au démarrage
+        loadData();
+        
+        // Rafraîchir automatiquement toutes les 30 secondes
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>
+
+

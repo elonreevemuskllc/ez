@@ -1,0 +1,360 @@
+{
+  "info": {
+    "name": "Casino Router API",
+    "description": "API collection for testing the Casino Offer Router locally",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "shared_secret",
+      "value": "dev-shared-secret-token-12345",
+      "type": "string"
+    },
+    {
+      "key": "click_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Click Tracking",
+      "item": [
+        {
+          "name": "Click - Affiliate John",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Extract click_id from redirect URL",
+                  "var location = pm.response.headers.get('Location');",
+                  "if (location && location.includes('click_id=')) {",
+                  "    var clickId = location.split('click_id=')[1];",
+                  "    pm.collectionVariables.set('click_id', clickId);",
+                  "    console.log('Captured click_id:', clickId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/click?sub1=affiliate_john&source=postman&campaign=test",
+              "host": ["{{base_url}}"],
+              "path": ["click"],
+              "query": [
+                { "key": "sub1", "value": "affiliate_john" },
+                { "key": "source", "value": "postman" },
+                { "key": "campaign", "value": "test" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Click - Affiliate Sarah",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/click?sub1=affiliate_sarah&source=postman",
+              "host": ["{{base_url}}"],
+              "path": ["click"],
+              "query": [
+                { "key": "sub1", "value": "affiliate_sarah" },
+                { "key": "source", "value": "postman" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Click - Facebook Traffic",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/click?sub1=facebook_ads&source=fb&campaign=winter2024",
+              "host": ["{{base_url}}"],
+              "path": ["click"],
+              "query": [
+                { "key": "sub1", "value": "facebook_ads" },
+                { "key": "source", "value": "fb" },
+                { "key": "campaign", "value": "winter2024" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Click - Custom Sub1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/click?sub1=my_custom_tracking_id",
+              "host": ["{{base_url}}"],
+              "path": ["click"],
+              "query": [
+                { "key": "sub1", "value": "my_custom_tracking_id" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Postback",
+      "item": [
+        {
+          "name": "Send FTD Postback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"click_id\": \"{{click_id}}\",\n  \"event\": \"ftd\",\n  \"payout\": 150.00,\n  \"secret\": \"{{shared_secret}}\",\n  \"external_player_id\": \"player_12345\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/postback",
+              "host": ["{{base_url}}"],
+              "path": ["postback"]
+            }
+          }
+        },
+        {
+          "name": "Postback - Invalid Secret",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"click_id\": \"{{click_id}}\",\n  \"event\": \"ftd\",\n  \"payout\": 100.00,\n  \"secret\": \"wrong-secret\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/postback",
+              "host": ["{{base_url}}"],
+              "path": ["postback"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Offers",
+      "item": [
+        {
+          "name": "List All Offers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/offers",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "offers"]
+            }
+          }
+        },
+        {
+          "name": "List Active Offers Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/offers?active_only=true",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "offers"],
+              "query": [
+                { "key": "active_only", "value": "true" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Offer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/offers/1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "offers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create New Offer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Casino Offer\",\n  \"casino_url\": \"https://new-casino.com/register?affid=123\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/offers",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "offers"]
+            }
+          }
+        },
+        {
+          "name": "Update Offer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Casino Name\",\n  \"active\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/offers/1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "offers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Offer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/offers/5",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "offers", "5"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Statistics",
+      "item": [
+        {
+          "name": "Global Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "stats"]
+            }
+          }
+        },
+        {
+          "name": "List All Sub1 Codes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats/sub1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "stats", "sub1"]
+            }
+          }
+        },
+        {
+          "name": "Stats for Affiliate John",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats/sub1/affiliate_john",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "stats", "sub1", "affiliate_john"]
+            }
+          }
+        },
+        {
+          "name": "Stats for Affiliate Sarah",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats/sub1/affiliate_sarah",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "stats", "sub1", "affiliate_sarah"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Weight Management",
+      "item": [
+        {
+          "name": "Update All Weights",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/update-weights",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "update-weights"]
+            }
+          }
+        },
+        {
+          "name": "Update Weights for Specific Sub1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/update-weights?sub1=affiliate_john",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "update-weights"],
+              "query": [
+                { "key": "sub1", "value": "affiliate_john" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

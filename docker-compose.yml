@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: casino_router_db
+    environment:
+      POSTGRES_DB: casino_router
+      POSTGRES_USER: casino_user
+      POSTGRES_PASSWORD: casino_pass_2024
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U casino_user -d casino_router" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - casino_network
+
+  app:
+    build: .
+    container_name: casino_router_app
+    environment:
+      DATABASE_URL: postgresql://casino_user:casino_pass_2024@postgres:5432/casino_router
+      LAST_N_CLICKS: 100
+      EXPLORATION_RATE: 0.20
+      CRON_INTERVAL_MINUTES: 10
+      SHARED_POSTBACK_SECRET: dev-shared-secret-token-12345
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin123
+      ENVIRONMENT: development
+      RATE_LIMIT_CLICK: 100
+      RATE_LIMIT_POSTBACK: 200
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    networks:
+      - casino_network
+    command: uvicorn app:app --host 0.0.0.0 --port 5000 --reload
+
+volumes:
+  postgres_data:
+
+
+networks:
+  casino_network:
+    driver: bridge
