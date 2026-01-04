@@ -1,0 +1,89 @@
+╔════════════════════════════════════════════════════════════╗
+║  🚀 ÉTAPES POUR PUSH TON CODE SUR GITHUB                  ║
+╚════════════════════════════════════════════════════════════╝
+
+✅ Git est déjà initialisé et commité !
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣ CRÉER UN REPO SUR GITHUB
+
+   • Va sur https://github.com/
+   • Clique sur "New repository"
+   • Nom du repo : casino-router
+   • Visibilité : PRIVÉ (Private) ← Important !
+   • NE PAS initialiser avec README
+   • Clique "Create repository"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2️⃣ PUSH TON CODE (dans PowerShell)
+
+   cd "C:\Users\trooz\Desktop\Nouveau dossier (2)\david\david"
+
+   git remote add origin https://github.com/TON_USERNAME/casino-router.git
+
+   git branch -M main
+
+   git push -u origin main
+
+   ⚠️ Remplace TON_USERNAME par ton username GitHub !
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3️⃣ DÉPLOYER SUR TON VPS (via SSH)
+
+   ssh root@TON_VPS_IP
+
+   # Installation automatique (recommandé)
+   wget https://raw.githubusercontent.com/TON_USERNAME/casino-router/main/install_vps.sh
+   chmod +x install_vps.sh
+   ./install_vps.sh
+
+   # OU installation manuelle
+   git clone https://github.com/TON_USERNAME/casino-router.git /opt/casino-router
+   cd /opt/casino-router
+   docker-compose up -d
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4️⃣ APRÈS DÉPLOIEMENT
+
+   ✅ Ton API sera accessible : http://TON_VPS_IP
+   ✅ Dashboard live : http://TON_VPS_IP/dashboard-live
+   ✅ Health check : http://TON_VPS_IP/health
+   ✅ Lien tracking : http://TON_VPS_IP/click?sub1=TA_SOURCE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5️⃣ CONFIGURER LES POSTBACKS
+
+   Remplace ngrok par ton IP/domaine dans :
+   • MyStake postback
+   • iCE postback
+   • SpinGranny postback
+   • 7ladies postback
+
+   Nouveau format : http://TON_VPS_IP/postback?...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DOCUMENTATION COMPLÈTE
+
+   • DEPLOIEMENT_VPS.md - Guide complet VPS
+   • README_GIT.md - Vue d'ensemble du projet
+   • 00_GUIDE_COMPLET_PROJET.md - Guide exhaustif
+   • CHECK_FINAL.md - Checklist finale
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 TON PROJET EST 100% PRÊT POUR LA PRODUCTION !
+
+   ✅ Git initialisé
+   ✅ Code commité
+   ✅ Documentation complète
+   ✅ Scripts d'installation automatique
+   ✅ Prêt à déployer sur VPS
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
